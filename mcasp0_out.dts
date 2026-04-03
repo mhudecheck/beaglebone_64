@@ -1,0 +1,64 @@
+/dts-v1/;
+/plugin/;
+
+#include "../ti/k3-pinctrl.h"
+
+ / {
+    compatible = "ti,j721e";
+};
+
+&main_pmx0 {
+    mcasp0_sharc_pins: mcasp0-sharc-pins {
+        pinctrl-single,pins = <
+            J721E_IOPAD(0x0b0, PIN_OUTPUT, 12) /* P9_28B -> MCASP0_AXR0  : DATA out  */
+            J721E_IOPAD(0x0d4, PIN_INPUT,  12) /* P9_31B -> MCASP0_ACLKX : BCLK in   */
+            J721E_IOPAD(0x0d8, PIN_INPUT,  12) /* P9_29B -> MCASP0_AFSX  : LRCLK in  */
+        >;
+    };
+};
+
+&mcasp0 {
+    status = "okay";
+    #sound-dai-cells = <0>;
+
+    pinctrl-names = "default";
+    pinctrl-0 = <&mcasp0_sharc_pins>;
+
+    op-mode = <0>;
+    tdm-slots = <2>;
+
+    serial-dir = <
+        1 0 0 0
+        0 0 0 0
+        0 0 0 0
+        0 0 0 0
+    >;
+
+    tx-num-evt = <32>;
+    rx-num-evt = <32>;
+};
+
+&{/} {
+    sharc_codec_stub: sharc-codec-stub {
+        compatible = "ti,pcm5102a";
+        #sound-dai-cells = <0>;
+    };
+
+    sound_mcasp0_sharc: sound-mcasp0-sharc {
+        compatible = "simple-audio-card";
+        simple-audio-card,name = "BBAI64-McASP0-SHARC";
+        simple-audio-card,format = "i2s";
+
+        simple-audio-card,bitclock-master = <&sharc_codec>;
+        simple-audio-card,frame-master = <&sharc_codec>;
+
+        simple-audio-card,cpu {
+            sound-dai = <&mcasp0>;
+        };
+
+        sharc_codec: simple-audio-card,codec {
+            sound-dai = <&sharc_codec_stub>;
+            playback-only;
+        };
+    };
+};
