@@ -8,4 +8,5 @@ You need to copy over the canonical Github repository for u_audio.c. Then, repla
 sudo rmmod u_audio
 
 make
+
 sudo insmod ./u_audio.ko
